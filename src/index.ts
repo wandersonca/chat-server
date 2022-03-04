@@ -8,6 +8,7 @@ const app = express();
 
 async function returnRedisConnection() {
     let client;
+    console.log(process.env)
     if(process.env.REDIS_URL) {
         client = createClient(process.env.REDIS_URL);
     } else {
