@@ -15,9 +15,6 @@ export default class Service {
     }
 
     private validateSignature(publicKey: string, signature: string, message: string) {
-        console.log(`Validating signature for ${publicKey}`);
-        console.log(`Signature: ${signature}`);
-        console.log(`Message: ${message}`);
         const verify = crypto.createVerify('SHA256')
         verify.update(message)
         if(!verify.verify(publicKey, signature, 'base64')) {
