@@ -1,25 +1,23 @@
-import { v4 as uuidv4 } from 'uuid';
-
 export default class Account {
-    private _name: string;
-    private _publicKey: string;
-    private _id: string;
+    name: string;
+    publicKey: string;
+    id: number;
 
-    constructor(name: string, publicKey: string) {
-        this._name = name;
-        this._publicKey = publicKey;
-        this._id = uuidv4();
+    constructor(name: string, publicKey: string, id: number) {
+        this.name = name;
+        this.publicKey = publicKey;
+        this.id = id;
     }
 
-    get name(): string {
-        return this._name;
+    getName(): string {
+        return this.name;
     }
 
-    get publicKey(): string {
-        return this._publicKey;
+    getPublicKey(): string {
+        return this.publicKey;
     }
 
-    get id(): string {
-        return this._id;
+    getId(): number {
+        return this.id;
     }
 }
