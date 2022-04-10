@@ -7,6 +7,9 @@
 4. Start Redis with Docker: `docker run -p 6379:6379 redis`
 5. Start the app: `npm run dev`
 
+# Heroku deployment
+This app can be run locally with `nodejs` and `docker`, however, I also deploy the app to Heroku. For local execution, use http://localhost:3000, for the production deployment substitute for `https://murmuring-journey-13653.herokuapp.com/`. Deployments to the `main` branch will automatically get deployed to Heroku.
+
 # How to generate keys and validate signatures using `openssl`
 1. Install openssl
 2. Run the following to generate a key-pair:
