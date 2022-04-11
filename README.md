@@ -38,18 +38,18 @@ openssl dgst -sha256 -sign private.pem data.txt > signature.bin
 base64 signature.bin --wrap=0 > signature.base64
 echo "Content-Type: application/json" > authheader.txt
 echo "Authentication-Signature: $(base64 signature.bin --wrap=0)" >> authheader.txt
-curl -X POST -H @authheader.txt -d @data.txt http://localhost:3000/account
+curl -X POST -H @authheader.txt -d @data.txt https://murmuring-journey-13653.herokuapp.com/account
 # Save the ID and test it out
 curl http://localhost:3000/account/1
 ```
 4. Send a message:
 ```sh
-echo -n '{"senderId":"3","recipientIds":"4","message":"hi"}' > data.txt
+echo -n '{"senderId":"1","recipientIds":"2","message":"hi"}' > data.txt
 openssl dgst -sha256 -sign private.pem data.txt > signature.bin
 base64 signature.bin --wrap=0 > signature.base64
 echo "Content-Type: application/json" > authheader.txt
 echo "Authentication-Signature: $(base64 signature.bin --wrap=0)" >> authheader.txt
-curl -X POST -H @authheader.txt -d @data.txt http://localhost:3000/message
+curl -X POST -H @authheader.txt -d @data.txt https://murmuring-journey-13653.herokuapp.com/message
 ```
 5. Check for messages:
 ```sh
