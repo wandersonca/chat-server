@@ -13,6 +13,10 @@ app.use(bodyParser.json());
 
 const service = new Service();
 
+process.on('uncaughtException', function(err) {
+    console.log('Uncaught exception: ' + err);
+});
+
 // Create and read accounts
 app.post('/account', async (req: express.req, res: express.res) => {
     const signature = req.header('Authentication-Signature');
@@ -81,3 +85,4 @@ app.listen(PORT, async () => {
     service.connect();
     console.log(`Server running on port ${PORT}`);
 });
+
