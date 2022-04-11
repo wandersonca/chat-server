@@ -30,6 +30,7 @@ export default class Service {
     }
 
     async createAccount(newAccount: any, signature: string): Promise<Account> {
+        await this.connect();
         if(!newAccount) {
             throw new Error("Missing body");
         }
@@ -41,6 +42,7 @@ export default class Service {
     }
 
     async getAccount(id: number): Promise<Account> {
+        await this.connect();
         const account = await this.redis.get(id);
         if(!account) {
             throw new Error("Account not found");
@@ -50,6 +52,7 @@ export default class Service {
     }
 
     async sendMessage(message: any, signature: string): Promise<void> {
+        await this.connect();
         if(!message) {
             throw new Error("Missing body");
         }
@@ -67,6 +70,7 @@ export default class Service {
     }
 
     async getMessages(id: number): Promise<Array<string>> {
+        await this.connect();
         const messages: Array<string> = [];
         if(!await this.redis.exists(id)) {
             throw new Error("Recipient does not exist");
