@@ -44,7 +44,7 @@ curl https://murmuring-journey-13653.herokuapp.com/account/1
 ```
 4. Send a message:
 ```sh
-echo -n '{"senderId":"1","recipientIds":"2","message":"hi"}' > data.txt
+echo -n '{"senderId":"1","recipientId":"2","message":"hi"}' > data.txt
 openssl dgst -sha256 -sign private.pem data.txt > signature.bin
 base64 signature.bin --wrap=0 > signature.base64
 echo "Content-Type: application/json" > authheader.txt

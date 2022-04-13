@@ -55,22 +55,23 @@ export default class Service {
         }
     }
 
-    async sendMessage(message: any, signature: string): Promise<void> {
+    async sendMessage(message: any, signature: string): Promise<string> {
         await this.connect();
         if(!message) {
             throw new Error("Missing body");
         }
         const senderAccount = await this.getAccount(message.senderId);
         this.validateSignature(senderAccount.publicKey, signature, JSON.stringify(message))
-        const recipients: Array<string> = message.recipientIds.split(','); 
-        for(const recipient of recipients) {
-            if(!await this.redis.exists(recipient)) {
-                throw new Error("Recipient does not exist");
-            }
-            const counter = await this.redis.incr(`${recipient}:count`);
-            console.log(`${recipient}:message:${counter}  ${JSON.stringify(message)} EX ${message.ttl || 60}`);
-            await this.redis.set(`${recipient}:message:${counter}`, JSON.stringify(message), {'EX': message.ttl || 60});
+        const recipient = message.recipientId; 
+        if(!await this.redis.exists(recipient)) {
+            throw new Error("Recipient does not exist");
         }
+        const counter = await this.redis.incr(`${recipient}:count`);
+        message.messageId = counter;
+        const messageString = JSON.stringify(message)
+        console.log(`${recipient}:message:${counter}  ${messageString} EX ${message.ttl || 60}`);
+        await this.redis.set(`${recipient}:message:${counter}`, messageString, {'EX': message.ttl || 60});
+        return messageString
     }
 
     async getMessages(id: number): Promise<Array<string>> {
@@ -84,7 +85,6 @@ export default class Service {
         for await (const key of scanIterator) {
             let message = await this.redis.get(key);
             message = JSON.parse(message);
-            message.messageId = key.split(':')[2];
             console.log(`Key: ${key} Message: ${message}`);
             messages.push(message);
         }

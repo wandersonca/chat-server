@@ -13,7 +13,7 @@ app.use(bodyParser.json());
 
 const service = new Service();
 
-process.on('uncaughtException', function(err) {
+process.on('uncaughtException', function(err: string) {
     console.log('Uncaught exception: ' + err);
 });
 
@@ -55,10 +55,10 @@ app.post('/message', async (req: express.req, res: express.res) => {
     const signature = req.header('Authentication-Signature');
     if(signature){
         try {
-            await service.sendMessage(req.body, signature);
-            res.status(200).send("success");
+            const messageWithId = await service.sendMessage(req.body, signature);
+            res.status(200).send(messageWithId);
         } catch (error: any) {
-            res.status(500).send(error.message);
+            res.status(500).send(error.message); 
         }        
     } else {
         res.status(401).send('Unauthorized - missing Authentication-Signature header');
