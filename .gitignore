@@ -105,3 +105,9 @@ dist
 
 # PEM files
 *.pem
+
+# Project files
+authheader.txt
+data.txt
+signature.txt
+signature.base64

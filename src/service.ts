@@ -8,7 +8,10 @@ export default class Service {
 
     constructor() {
         if(process.env.REDIS_URL) {
-            this.redis = redis.createClient({url: process.env.REDIS_URL});
+            this.redis = redis.createClient({url: process.env.REDIS_URL,   socket: {
+                tls: true,
+                rejectUnauthorized: false,
+              }});
         } else {
             this.redis = redis.createClient();
         }
