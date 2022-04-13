@@ -109,5 +109,5 @@ dist
 # Project files
 authheader.txt
 data.txt
-signature.txt
 signature.base64
+signature.bin

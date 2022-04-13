@@ -25,7 +25,6 @@ app.post('/account', async (req: express.req, res: express.res) => {
             const account = await service.createAccount(req.body, signature);
             res.status(200).send(account);
         } catch (error: any) {
-            console.log(`error: ${error}`);
             console.log(`errorMessage: ${error.message}`);
             res.status(500).send(error.message);
         }        
