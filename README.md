@@ -40,7 +40,7 @@ echo "Content-Type: application/json" > authheader.txt
 echo "Authentication-Signature: $(base64 signature.bin --wrap=0)" >> authheader.txt
 curl -X POST -H @authheader.txt -d @data.txt https://murmuring-journey-13653.herokuapp.com/account
 # Save the ID and test it out
-curl http://localhost:3000/account/1
+curl https://murmuring-journey-13653.herokuapp.com/account/1
 ```
 4. Send a message:
 ```sh
@@ -53,5 +53,5 @@ curl -X POST -H @authheader.txt -d @data.txt https://murmuring-journey-13653.her
 ```
 5. Check for messages:
 ```sh
-curl http://localhost:3000/message/4
+curl https://murmuring-journey-13653.herokuapp.com/message/4
 ```
