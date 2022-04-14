@@ -12,23 +12,7 @@ export default class Service {
                 tls: true,
                 rejectUnauthorized: false,
                 connectTimeout: 3000,
-                reconnectStrategy() {
-                    console.info('reconnectStrategy ...');
-                    return 3000;
-                }
               }});
-              redis.on('connect', () => {
-                console.info('Redis client is connecting to redis://127.0.0.1:6379...')
-              })
-              redis.on('ready', () => {
-                console.info('Redis client is connected')
-              })
-              redis.on('reconnecting', () => {
-                console.info('Redis client is reconnecting...')
-              })
-              redis.on('error', (error: any) => {
-                console.error(`Redis client error: ${JSON.stringify(error)}`)
-              })
         } else {
             this.redis = redis.createClient();
         }
