@@ -27,10 +27,10 @@ export default class Service {
     }
 
     async connect() {
-        if(!this.connected) {
+        //if(!this.connected) {
             await this.redis.connect();
             this.connected = true;
-        }
+        //}
     }
 
     async createAccount(newAccount: any, signature: string): Promise<Account> {
