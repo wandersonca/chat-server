@@ -11,7 +11,24 @@ export default class Service {
             this.redis = redis.createClient({url: process.env.REDIS_URL,   socket: {
                 tls: true,
                 rejectUnauthorized: false,
+                connectTimeout: 3000,
+                reconnectStrategy() {
+                    console.info('reconnectStrategy ...');
+                    return 3000;
+                }
               }});
+              redis.on('connect', () => {
+                console.info('Redis client is connecting to redis://127.0.0.1:6379...')
+              })
+              redis.on('ready', () => {
+                console.info('Redis client is connected')
+              })
+              redis.on('reconnecting', () => {
+                console.info('Redis client is reconnecting...')
+              })
+              redis.on('error', (error: any) => {
+                console.error(`Redis client error: ${JSON.stringify(error)}`)
+              })
         } else {
             this.redis = redis.createClient();
         }
@@ -27,10 +44,17 @@ export default class Service {
     }
 
     async connect() {
-        //if(!this.connected) {
+        if(!this.connected) {
             await this.redis.connect();
             this.connected = true;
-        //}
+        }
+    }
+
+    async disconnect() {
+        if(this.connected) {
+            await this.redis.disconnect();
+            this.connected = false;
+        }       
     }
 
     async createAccount(newAccount: any, signature: string): Promise<Account> {
@@ -42,12 +66,14 @@ export default class Service {
         const id = await this.redis.incr('id-counter');
         const createdAccount = new Account(newAccount.name, newAccount.publicKey, id);
         await this.redis.set(id, JSON.stringify(createdAccount));
+        await this.disconnect();
         return createdAccount;
     }
 
     async getAccount(id: number): Promise<Account> {
         await this.connect();
         const account = await this.redis.get(id);
+        await this.disconnect();
         if(!account) {
             throw new Error("Account not found");
         } else {
@@ -71,6 +97,7 @@ export default class Service {
         const messageString = JSON.stringify(message)
         console.log(`${recipient}:message:${counter}  ${messageString} EX ${message.ttl || 60}`);
         await this.redis.set(`${recipient}:message:${counter}`, messageString, {'EX': message.ttl || 60});
+        await this.disconnect();
         return messageString
     }
 
@@ -88,6 +115,7 @@ export default class Service {
             console.log(`Key: ${key} Message: ${message}`);
             messages.push(message);
         }
+        await this.disconnect();
         return messages;
     }
 }
