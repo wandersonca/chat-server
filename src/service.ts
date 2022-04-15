@@ -98,7 +98,7 @@ export default class Service {
         console.log(`${id}:message-*`);
         const scanIterator = this.redis.scanIterator({TYPE: 'string', MATCH: `${id}:message:*`});
         for await (const key of scanIterator) {
-            let message = await this.redis.getdel(key);
+            let message = await this.redis.getDel(key);
             message = JSON.parse(message);
             console.log(`Key: ${key} Message: ${message}`);
             messages.push(message);
