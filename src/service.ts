@@ -36,19 +36,19 @@ export default class Service {
         const id = await client.incr('id-counter');
         const createdAccount = new Account(newAccount.name, newAccount.publicKey, id);
         await client.set(id, JSON.stringify(createdAccount));
-        await client.quit();
+        await client.disconnect();
         return createdAccount;
     }
 
     async getAccount(id: number): Promise<Account> {
         const client = await this.connect();
         const account = await client.get(id);
+        await client.disconnect();
         if(!account) {
             throw new Error("Account not found");
         } else {
             return JSON.parse(account) as Account;
         }
-        await client.quit();
     }
 
     async sendMessage(message: any, signature: string): Promise<string> {
@@ -72,7 +72,7 @@ export default class Service {
             console.log(`${recipient}:message:${counter}  ${messageString}`);
             await client.set(`${recipient}:message:${counter}`, messageString);            
         }
-        await client.quit();
+        await client.disconnect();
         return messageString
     }
 
@@ -93,7 +93,7 @@ export default class Service {
             console.log(`Key: ${key} Message: ${message}`);
             messages.push(message);
         }
-        await client.quit();
+        await client.disconnect();
         return messages;
     }
 }
