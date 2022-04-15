@@ -33,14 +33,26 @@ openssl dgst -sha256 -verify public.pem -signature signature.bin data.txt
 2. Generate a key-pair, see above. 
 3. Create an account:
 ```sh
+# Testing against production:
+export HOST="https://murmuring-journey-13653.herokuapp.com/account"
+export HOST="http://localhost:3000"
+# Testing against local server 
+
+# MacOS (weird newline escaping requriement, also base64 args are different)
+echo -n '{"name":"will","publicKey":"-----BEGIN PUBLIC KEY-----\\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEvQEyMB5Umy/LKMrk58BiKBoOHwaN\\n8JTxo3LZ2Jsb62mjovD9yVnGTuLQfvApeySw9uqFSq3hT8ZcvY48mYk7gg==\\n-----END PUBLIC KEY-----"}' > data.txt
+openssl dgst -sha256 -sign private.pem data.txt > signature.bin
+base64 -i signature.bin -o signature.base64
+
+# Linux 
 echo -n '{"name":"will","publicKey":"-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEXX/QhZeHIg5uyAye74agscxXrRB6\n8Y9mcTuIaAyNIaRLQeqFN/FL1rJ4EzO2xO2oVOmDP1mv43RO3gtqfAnR3Q==\n-----END PUBLIC KEY-----"}' > data.txt
 openssl dgst -sha256 -sign private.pem data.txt > signature.bin
 base64 signature.bin --wrap=0 > signature.base64
+
 echo "Content-Type: application/json" > authheader.txt
-echo "Authentication-Signature: $(base64 signature.bin --wrap=0)" >> authheader.txt
-curl -X POST -H @authheader.txt -d @data.txt https://murmuring-journey-13653.herokuapp.com/account
+echo "Authentication-Signature: $(cat signature.base64)" >> authheader.txt
+curl -X POST -H @authheader.txt -d @data.txt ${HOST}/account
 # Save the ID and test it out
-curl https://murmuring-journey-13653.herokuapp.com/account/1
+curl ${HOST}/account/1
 ```
 4. Send a message:
 ```sh

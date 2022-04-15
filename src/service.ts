@@ -28,17 +28,15 @@ export default class Service {
     }
 
     async connect() {
-        if(!this.connected) {
+        try {
+            // TODO: find a cleaner way to detect if we are connected or not... 
             await this.redis.connect();
-            this.connected = true;
+        } catch (error: any) {
+            if (error.message != 'Socket already opened') {
+                console.error(error)
+                throw error
+            }
         }
-    }
-
-    async disconnect() {
-        if(this.connected) {
-            await this.redis.disconnect();
-            this.connected = false;
-        }       
     }
 
     async createAccount(newAccount: any, signature: string): Promise<Account> {
@@ -50,14 +48,12 @@ export default class Service {
         const id = await this.redis.incr('id-counter');
         const createdAccount = new Account(newAccount.name, newAccount.publicKey, id);
         await this.redis.set(id, JSON.stringify(createdAccount));
-        await this.disconnect();
         return createdAccount;
     }
 
     async getAccount(id: number): Promise<Account> {
         await this.connect();
         const account = await this.redis.get(id);
-        await this.disconnect();
         if(!account) {
             throw new Error("Account not found");
         } else {
@@ -79,14 +75,22 @@ export default class Service {
         const counter = await this.redis.incr(`${recipient}:count`);
         message.messageId = counter;
         const messageString = JSON.stringify(message)
-        console.log(`${recipient}:message:${counter}  ${messageString} EX ${message.ttl || 60}`);
-        await this.redis.set(`${recipient}:message:${counter}`, messageString, {'EX': message.ttl || 60});
-        await this.disconnect();
+        if (message.ttl) {
+            console.log(`${recipient}:message:${counter}  ${messageString} EX ${message.ttl}`);
+            await this.redis.set(`${recipient}:message:${counter}`, messageString, {'EX': message.ttl});
+        } else {
+            console.log(`${recipient}:message:${counter}  ${messageString}`);
+            await this.redis.set(`${recipient}:message:${counter}`, messageString);            
+        }
+
         return messageString
     }
 
-    async getMessages(id: number): Promise<Array<string>> {
+    async getMessages(id: number, signature: string): Promise<Array<string>> {
         await this.connect();
+        const senderAccount = await this.getAccount(id);
+        this.validateSignature(senderAccount.publicKey, signature, JSON.stringify(id))
+
         const messages: Array<string> = [];
         if(!await this.redis.exists(id)) {
             throw new Error("Recipient does not exist");
@@ -94,12 +98,11 @@ export default class Service {
         console.log(`${id}:message-*`);
         const scanIterator = this.redis.scanIterator({TYPE: 'string', MATCH: `${id}:message:*`});
         for await (const key of scanIterator) {
-            let message = await this.redis.get(key);
+            let message = await this.redis.getdel(key);
             message = JSON.parse(message);
             console.log(`Key: ${key} Message: ${message}`);
             messages.push(message);
         }
-        await this.disconnect();
         return messages;
     }
 }
