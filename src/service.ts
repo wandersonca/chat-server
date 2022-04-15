@@ -89,7 +89,7 @@ export default class Service {
     async getMessages(id: number, signature: string): Promise<Array<string>> {
         await this.connect();
         const senderAccount = await this.getAccount(id);
-        this.validateSignature(senderAccount.publicKey, signature, JSON.stringify(id))
+        this.validateSignature(senderAccount.publicKey, signature, "");
 
         const messages: Array<string> = [];
         if(!await this.redis.exists(id)) {
