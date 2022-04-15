@@ -66,9 +66,10 @@ app.post('/message', async (req: express.req, res: express.res) => {
 });
 
 app.get('/message/:id', async (req: express.req, res: express.res) => {
+    const signature = req.header('Authentication-Signature');
     if(req.params.id) {
         try {
-            const messages = await service.getMessages(req.params.id);
+            const messages = await service.getMessages(req.params.id, signature);
             res.status(200).send(messages);
         } catch (error: any) {
             if(error.message == 'Account not found') {
