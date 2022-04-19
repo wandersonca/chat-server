@@ -86,3 +86,4 @@ echo "Content-Type: application/json" > authheader.txt
 echo "Authentication-Signature: $(cat signature.base64)" >> authheader.txt
 curl -H @authheader.txt ${HOST}/message/2
 ```
+
