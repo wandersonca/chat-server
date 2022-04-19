@@ -1,4 +1,7 @@
 # chat-server
+This is a proof-of-concept chat server using ECDSA signatures to verify API calls with EC 256-bit PEM keys. You can also use these keys for a Diffie Hellman key exchange to perform AES encryption for the message contents. 
+
+You can find an campanion iPhone app for this server [here](https://github.com/wandersonca/crypto-chat).
 
 # How to run locally
 1. Install Nodejs v16
@@ -35,8 +38,8 @@ openssl dgst -sha256 -verify public.pem -signature signature.bin data.txt
 ```sh
 # Testing against production:
 export HOST="https://murmuring-journey-13653.herokuapp.com/account"
-export HOST="http://localhost:3000"
 # Testing against local server 
+export HOST="http://localhost:3000"
 
 # MacOS (weird newline escaping requriement, also base64 args are different)
 echo -n '{"name":"will","publicKey":"-----BEGIN PUBLIC KEY-----\\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEvQEyMB5Umy/LKMrk58BiKBoOHwaN\\n8JTxo3LZ2Jsb62mjovD9yVnGTuLQfvApeySw9uqFSq3hT8ZcvY48mYk7gg==\\n-----END PUBLIC KEY-----"}' > data.txt
@@ -58,12 +61,28 @@ curl ${HOST}/account/1
 ```sh
 echo -n '{"senderId":"1","recipientId":"2","message":"hi"}' > data.txt
 openssl dgst -sha256 -sign private.pem data.txt > signature.bin
+
+# MacOS (base64 args are different)
+base64 -i signature.bin -o signature.base64
+# Linux 
 base64 signature.bin --wrap=0 > signature.base64
+
 echo "Content-Type: application/json" > authheader.txt
-echo "Authentication-Signature: $(base64 signature.bin --wrap=0)" >> authheader.txt
-curl -X POST -H @authheader.txt -d @data.txt https://murmuring-journey-13653.herokuapp.com/message
+echo "Authentication-Signature: $(cat signature.base64)" >> authheader.txt
+curl -X POST -H @authheader.txt -d @data.txt ${HOST}/message
 ```
+
 5. Check for messages:
 ```sh
-curl https://murmuring-journey-13653.herokuapp.com/message/4
+echo -n '2' > data.txt
+openssl dgst -sha256 -sign private.pem data.txt > signature.bin
+
+# MacOS (base64 args are different)
+base64 -i signature.bin -o signature.base64
+# Linux 
+base64 signature.bin --wrap=0 > signature.base64
+
+echo "Content-Type: application/json" > authheader.txt
+echo "Authentication-Signature: $(cat signature.base64)" >> authheader.txt
+curl -H @authheader.txt ${HOST}/message/2
 ```
